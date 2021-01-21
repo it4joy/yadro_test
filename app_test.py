@@ -1,32 +1,75 @@
 import pygal
 import json
 import time
+import sqlite3
 
+from sqlite3 import Error
 from flask import Flask
 from flask import render_template
 
 app_test = Flask(__name__)
 app_test.debug = True
 
+def create_connection(path):
+    connection = None
+    try:
+        connection = sqlite3.connect(path)
+        print("SQLite :: Successfully connected")
+    except Error as e:
+        print(f"SQLite :: The error '{e}' occured")
+
+    return connection
+
+connection = create_connection('./db/fio_test_db.sqlite')
+
+def exec_query(connection, query):
+    cursor = connection.cursor()
+    try:
+        cursor.execute(query)
+        connection.commit()
+        print("SQLite :: Query executed successfully")
+    except Error as e:
+        print(f"SQLite :: The error '{e}' occured")
+
+create_users_table = """
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    age INTEGER,
+    gender TEXT,
+    nationality TEXT
+);
+"""
+
+exec_query(connection, create_users_table)
+
 @app_test.route('/')
 def index():
-    return "Welcome to Pygal Charting Lib!"
+    #return "Welcome to Pygal Charting Lib!"
+    metric_1 = '/latency'
+    metric_2 = '/iops'
+    metric_3 = '/bw'
 
-@app_test.route('/hello')
+    return render_template('index.html', latency = metric_1, iops = metric_2, bw = metric_3)
+
+
+@app_test.route('/latency')
 def hello():
     #return "Hello, World!"
-    with open('tpl.json', 'r') as bar_f:
+    with open('./tmp/test.out', 'r') as bar_f:
         data = json.load(bar_f)
 
     chart = pygal.Bar()
-    mark_list = [x['mark'] for x in data]
 
-    chart.add('Annual Mark List', mark_list)
-    chart.x_labels = [x['y'] for x in data]
+    iops_min = data['jobs'][0]['read']['iops_min']
+    iops_max = data['jobs'][0]['read']['iops_max']
 
-    chart.render_to_file('static/images/bar_chart.svg')
-    img_url = 'static/images/bar_chart.svg?cache=' + str(time.time())
-    return render_template('app.html', image_url = img_url)
+    chart.add('iops_min', iops_min)
+    chart.add('iops_max', iops_max)
+
+    chart.render_to_file('static/images/fio_t_chart.svg')
+    svg_url = 'static/images/fio_t_chart.svg?cache=' + str(time.time())
+    return render_template('app.html', img_url = svg_url)
 
 if __name__ == "__main__":
     app_test.run()
