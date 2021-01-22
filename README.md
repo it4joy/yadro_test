@@ -3,6 +3,7 @@ Test task for Yadro
 
 ### Tools
 
+- Oracle VM VirtualBox 6.1
 - Debian 10.7.0 (amd64)
 - SQLite 3.27.2
 - Python 3.7.3
