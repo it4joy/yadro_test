@@ -22,26 +22,53 @@ def create_connection(path):
 
 connection = create_connection('./db/fio_test_db.sqlite')
 
-def exec_query(connection, query):
+def exec_query( connection, query, tuple_ = () ):
     cursor = connection.cursor()
     try:
-        cursor.execute(query)
-        connection.commit()
+        if len(tuple_) > 1:
+            cursor.execute(query, tuple_)
+            connection.commit()
+        else:
+            cursor.execute(query)
+            connection.commit()
         print("SQLite :: Query executed successfully")
     except Error as e:
         print(f"SQLite :: The error '{e}' occured")
 
-create_users_table = """
-CREATE TABLE IF NOT EXISTS users (
+create_jobs_table = """
+CREATE TABLE IF NOT EXISTS fio_jobs (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT NOT NULL,
-    age INTEGER,
-    gender TEXT,
-    nationality TEXT
+    job_name TEXT NOT NULL,
+    job_runtime INTEGER,
+    read_iops REAL,
+    read_iops_min INTEGER,
+    read_iops_max INTEGER
 );
 """
 
-exec_query(connection, create_users_table)
+exec_query(connection, create_jobs_table)
+
+# gets values from json
+with open('./tmp/test.out', 'r') as jobs_f:
+    job_data = json.load(jobs_f)
+
+    job_name = job_data['jobs'][0]['jobname']
+    job_runtime = job_data['jobs'][0]['job_runtime']
+    read_iops = job_data['jobs'][0]['read']['iops']
+    read_iops_min = job_data['jobs'][0]['read']['iops_min']
+    read_iops_max = job_data['jobs'][0]['read']['iops_max']
+
+# inserts job's data into the table
+insert_job_data = """
+INSERT INTO
+    fio_jobs (job_name, job_runtime, read_iops, read_iops_min, read_iops_max)
+VALUES
+    (?, ?, ?, ?, ?)
+"""
+
+job_data_tuple = (job_name, job_runtime, read_iops, read_iops_min, read_iops_max)
+
+exec_query(connection, insert_job_data, job_data_tuple)
 
 @app_test.route('/')
 def index():
