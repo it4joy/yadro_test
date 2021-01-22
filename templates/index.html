@@ -2,13 +2,17 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Pygal Charting Lib</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
 	</head>
 	<body>
-		<div>
-			<p>Charts</p>
+		<div class="app-wrapper">
+			<h3>Charts</h3>
 			<a href="{{ latency }}">Latency</a>
 			<a href="{{ iops }}">IOPS</a>
 			<a href="{{ bw }}">Bandwidth</a>
+
+			<p>Job Name: {{ jobName  }}</p>
+			<p>Job Runtime: {{ jobRuntime }}</p>
 		</div>
 	</body>
 </html>

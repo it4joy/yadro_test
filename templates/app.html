@@ -2,10 +2,11 @@
 	<head>
 		<meta charset="UTF-8">
 		<title>Pygal Charting Lib</title>
+		<link rel="stylesheet" href="{{ url_for('static', filename= 'css/style.css') }}">
 	</head>
 	<body>
-		<div>
-			<p>Bar Chart</p>
+		<div class="app-wrapper">
+			<h3>Bar Chart for Load_1</h3>
 			<figure>
 				<embed type="image/svg+xml" src="{{img_url}}">
 			</figure>

@@ -70,6 +70,7 @@ job_data_tuple = (job_name, job_runtime, read_iops, read_iops_min, read_iops_max
 
 exec_query(connection, insert_job_data, job_data_tuple)
 
+
 @app_test.route('/')
 def index():
     #return "Welcome to Pygal Charting Lib!"
@@ -77,7 +78,7 @@ def index():
     metric_2 = '/iops'
     metric_3 = '/bw'
 
-    return render_template('index.html', latency = metric_1, iops = metric_2, bw = metric_3)
+    return render_template('index.html', jobName = job_name, jobRuntime = job_runtime, latency = metric_1, iops = metric_2, bw = metric_3)
 
 
 @app_test.route('/latency')
